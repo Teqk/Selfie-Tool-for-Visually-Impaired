@@ -1,4 +1,7 @@
 #pip install opencv-python
+#pip install SpeechRecognition
+#pip install pyaudio (more complicated steps for mac and linux)
+#pip install pyttsx3
 import cv2 as cv2
 import os
 import numpy as numpy 
@@ -66,7 +69,7 @@ def transcribe_audio(audio):
 
 #program introduction and instructions
 # edit here for more Introduction
-engine.say("Welcome to the photo booth. Please move your head to the quadrant where you want your photo to be taken.")
+engine.say("Welcome to the photo booth. Select a quadrant from the following: Top Left, Top Right, Bottom Left, Bottom Right. To select a quadrant say witch quadrant you want")
 engine.runAndWait()
 
 #get user quadrant from user using voice
@@ -79,6 +82,10 @@ while user_quadrant == "none":
     if transcript[0] == "done" or transcript[0] == "close program" or transcript[0] == "close":
         user_quadrant = "exit"
         killAllThreads = True
+
+#more instructions
+engine.say("The program will guide your face into the correct quadrant by telling you what quadrant you are curriently in. If the program says none than it cant detect your face, try to face the camera and move your face in front of the camera at about an arms length away. Once your face is in the desired quadrant say cheese to take a picture. To close the program say close program or done")
+engine.runAndWait()
 
 #this captures video from laptop camera
 cap = cv2.VideoCapture(0)  
