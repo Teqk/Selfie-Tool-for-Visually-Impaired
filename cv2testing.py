@@ -69,8 +69,8 @@ def transcribe_audio(audio):
 
 #program introduction and instructions
 # edit here for more Introduction
-engine.say("Welcome to the photo booth. Select a quadrant from the following: Top Left, Top Right, Bottom Left, Bottom Right. To select a quadrant say witch quadrant you want")
-engine.runAndWait()
+#engine.say("Welcome to the photo booth. Select a quadrant from the following: Top Left, Top Right, Bottom Left, Bottom Right. To select a quadrant say witch quadrant you want")
+#engine.runAndWait()
 
 #get user quadrant from user using voice
 user_quadrant = "none"
@@ -84,17 +84,44 @@ while user_quadrant == "none":
         killAllThreads = True
 
 #more instructions
-engine.say("The program will guide your face into the correct quadrant by telling you what quadrant you are curriently in. If the program says none than it cant detect your face, try to face the camera and move your face in front of the camera at about an arms length away. Once your face is in the desired quadrant say cheese to take a picture. To close the program say close program or done")
-engine.runAndWait()
+#engine.say("The program will guide your face into the correct quadrant by telling you what quadrant you are curriently in. If the program says none than it cant detect your face, try to face the camera and move your face in front of the camera at about an arms length away. Once your face is in the desired quadrant say cheese to take a picture. To close the program say close program or done")
+#engine.runAndWait() 
 
-#this captures video from laptop camera
-cap = cv2.VideoCapture(0)  
+#sound output thread
+def soundOutputLoop():
+    global quadrant
+    global killAllThreads
+    localQuadrant = "none"
+    while killAllThreads == False:
+        if(localQuadrant != quadrant):
+            localQuadrant = quadrant
+            print(quadrant)
+            engine.say(quadrant)
+            engine.runAndWait()
 
-#video thread
+#sound input thread
+def soundInputLoop(user_quadrant):
+    global quadrant
+    global killAllThreads
+    global takePhoto
+    while killAllThreads == False:
+        audio = listen_mic()
+        transcript = transcribe_audio(audio)
+        if(transcript[0] == "cheese" and quadrant == user_quadrant):
+            takePhoto = True
+        elif(transcript[0] == "done" or transcript[0] == "close program" or transcript[0] == "close"):
+            killAllThreads = True
+        else:
+            print(transcript[0])
+
 def videoLoop(face_cascade, img_counter):
     global quadrant
     global killAllThreads
     global takePhoto
+    #this captures video from laptop camera
+    cap = cv2.VideoCapture(0) 
+
+    #video thread on main thread
     while True:
         new_quadrant = "none" #default is none till we find a face
 
@@ -138,47 +165,18 @@ def videoLoop(face_cascade, img_counter):
             cv2.imwrite(img_name, frameCopy) 
             print("Photo Taken")
             img_counter+=1
+    
+    cap.release() #release video capture object
+    cv2.destroyAllWindows() # Closes all frame windows
 
-#sound output thread
-def soundOutputLoop():
-    global quadrant
-    global killAllThreads
-    localQuadrant = "none"
-    while killAllThreads == False:
-        if(localQuadrant != quadrant):
-            localQuadrant = quadrant
-            print(quadrant)
-            engine.say(quadrant)
-            engine.runAndWait()
-
-#sound input thread
-def soundInputLoop(user_quadrant):
-    global quadrant
-    global killAllThreads
-    global takePhoto
-    while killAllThreads == False:
-        audio = listen_mic()
-        transcript = transcribe_audio(audio)
-        if(transcript[0] == "cheese" and quadrant == user_quadrant):
-            takePhoto = True
-        elif(transcript[0] == "done" or transcript[0] == "close program" or transcript[0] == "close"):
-            killAllThreads = True
-        else:
-            print(transcript[0])
-
-
-#handle threading
-vthread = threading.Thread(target=videoLoop, args=[face_cascade, img_counter])
+#handle threading for sound input and output
 sithread = threading.Thread(target=soundOutputLoop)
 sothread = threading.Thread(target=soundInputLoop, args=[user_quadrant])
 
-vthread.start()
 sithread.start()
 sothread.start()
 
-vthread.join()
+videoLoop(face_cascade, img_counter)
+
 sithread.join()
 sothread.join()
-
-cap.release() #release video capture object
-cv2.destroyAllWindows() # Closes all frame windows
