@@ -176,6 +176,7 @@ sothread = threading.Thread(target=soundInputLoop, args=[user_quadrant])
 sithread.start()
 sothread.start()
 
+#run video loop on main thread
 videoLoop(face_cascade, img_counter)
 
 sithread.join()
