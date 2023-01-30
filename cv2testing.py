@@ -114,6 +114,7 @@ def soundInputLoop(user_quadrant):
         else:
             print(transcript[0])
 
+#handle cv2 video and face reconition
 def videoLoop(face_cascade, img_counter):
     global quadrant
     global killAllThreads
