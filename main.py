@@ -68,7 +68,6 @@ def transcribe_audio(audio):
     return transcript
 
 #program introduction and instructions
-# edit here for more Introduction
 engine.say("Welcome to the photo booth. Select a quadrant from the following: Top Left, Top Right, Bottom Left, Bottom Right. To select a quadrant say witch quadrant you want")
 engine.runAndWait()
 
@@ -84,8 +83,9 @@ while user_quadrant == "none":
         killAllThreads = True
 
 #more instructions
-engine.say("The program will guide your face into the correct quadrant by telling you what quadrant you are curriently in. If the program says none than it cant detect your face, try to face the camera and move your face in front of the camera at about an arms length away. Once your face is in the desired quadrant say cheese to take a picture. To close the program say close program or done")
-engine.runAndWait() 
+if killAllThreads == False:
+    engine.say("The program will guide your face into the correct quadrant by telling you what quadrant you are curriently in. If the program says none than it cant detect your face, try to face the camera and move your face in front of the camera at about an arms length away. Once your face is in the desired quadrant say cheese to take a picture. To close the program say close program or done")
+    engine.runAndWait() 
 
 #sound output thread
 def soundOutputLoop():
@@ -109,6 +109,8 @@ def soundInputLoop(user_quadrant):
         transcript = transcribe_audio(audio)
         if(transcript[0] == "cheese" and quadrant == user_quadrant):
             takePhoto = True
+            engine.say("photo taken")
+            engine.runAndWait()
         elif(transcript[0] == "done" or transcript[0] == "close program" or transcript[0] == "close"):
             killAllThreads = True
         else:
