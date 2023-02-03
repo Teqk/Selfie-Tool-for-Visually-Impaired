@@ -68,7 +68,7 @@ def transcribe_audio(audio):
     return transcript
 
 #program introduction and instructions
-engine.say("Welcome to the photo booth. Select a quadrant from the following: Top Left, Top Right, Bottom Left, Bottom Right. To select a quadrant say witch quadrant you want")
+engine.say("Welcome to the photo booth. Select which quadrant you'd like your face to be in from the following options: Top Left, Top Right, Bottom Left, Bottom Right.")
 engine.runAndWait()
 
 #get user quadrant from user using voice
@@ -84,7 +84,7 @@ while user_quadrant == "none":
 
 #more instructions
 if killAllThreads == False:
-    engine.say("The program will guide your face into the correct quadrant by telling you what quadrant you are curriently in. If the program says none than it cant detect your face, try to face the camera and move your face in front of the camera at about an arms length away. Once your face is in the desired quadrant say cheese to take a picture. To close the program say close program or done")
+    engine.say("The program will guide you by telling you which quadrant your face is in if you would like to take a picture in that quadrant say cheeese or press p.You may take a picture in a quadrant differnt from the one specified above. If the program says none than it can't detect your face, try to face the camera about an arms length away. To close the program say close program, done, or press q")
     engine.runAndWait() 
 
 #sound output thread
@@ -112,7 +112,9 @@ def soundInputLoop(user_quadrant):
             engine.say("photo taken")
             engine.runAndWait()
         elif(transcript[0] == "done" or transcript[0] == "close program" or transcript[0] == "close"):
-            killAllThreads = True
+             engine.say("Bye Bye for now!")
+             engine.runAndWait()
+             killAllThreads = True
         else:
             print(transcript[0])
 
@@ -160,6 +162,8 @@ def videoLoop(face_cascade, img_counter):
 
         key = cv2.waitKey(1) #wait until this key is pressed
         if key == ord("q") or killAllThreads == True: # press q to exit this while loop
+            engine.say("Bye Bye for now!")
+            engine.runAndWait()
             killAllThreads = True
             break
         if key == ord("p") or takePhoto == True:
